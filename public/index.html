@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Hub Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .message-form {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        input {
+            flex: 1;
+            padding: 8px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005a9e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Event Hub Demo-SQL PASS</h1>
+    <div class="qr-code">
+        <img id="qrcode" alt="QR Code" style="max-width: 300px">
+    </div>
+    <div class="message-form">
+        <input type="text" id="message" placeholder="Enter your message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        // Load QR code
+        fetch('/qr')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('qrcode').src = data.qrCode;
+            });
+
+        // Send message
+        async function sendMessage() {
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+
+            try {
+                const response = await fetch('/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    messageInput.value = '';
+                    alert('Message sent successfully!');
+                } else {
+                    alert('Failed to send message');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to send message');
+            }
+        }
+    </script>
+</body>
+</html>
